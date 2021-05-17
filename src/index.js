@@ -2,8 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
+import firebase from "firebase";
+import { Route, BrowserRouter as Router } from "react-router-dom";
+import LoginComponent from "./login/login";
+import SignupComponent from "./signup/signup";
+import DashboardComponent from "./dashboard/dashboard";
 
-const firebase = require("firebase");
 require("firebase/database");
 
 firebase.initializeApp({
@@ -16,12 +20,17 @@ firebase.initializeApp({
   measurementId: "G-NLCYW0WZ9S",
 });
 
-ReactDOM.render(
-  <React.StrictMode>
-    <div>Hello World</div>
-  </React.StrictMode>,
-  document.getElementById("root")
+const routing = (
+  <Router>
+    <div id="routing-container">
+      <Route path="/login" component={LoginComponent}></Route>
+      <Route path="/signup" component={SignupComponent}></Route>
+      <Route path="/dashboard" component={DashboardComponent}></Route>
+    </div>
+  </Router>
 );
+
+ReactDOM.render(routing, document.getElementById("root"));
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
