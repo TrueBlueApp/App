@@ -9,7 +9,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import firebase from "firebase";
+import firebase from 'firebase';
 
 class LoginComponent extends React.Component {
   constructor() {
@@ -19,6 +19,33 @@ class LoginComponent extends React.Component {
       password: null,
       loginError: "",
     };
+  }
+
+  userTyping = (type, e) => {
+    switch(type) {
+      case 'email':
+        this.setState({ email: e.target.value });
+        break;
+      case 'password':
+        this.setState({ password: e.target.value });
+        break;
+      default:
+        break;
+    }
+  }
+
+  submitLogin = async (e) => {
+    e.preventDefault();
+
+    console.log(this.state.email);
+    console.log(this.state.password);
+
+    await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+      this.props.history.push('/dashboard');
+    }, error => {
+      this.setState({ loginError: 'Konnte nicht zum Server verbinden... '});
+      console.log(error);
+    });
   }
 
   render() {
@@ -39,6 +66,7 @@ class LoginComponent extends React.Component {
                 autoFocus
                 id="signin-email-input"
                 onChange={(e) => this.userTyping("email", e)}
+                type="email"
               ></Input>
             </FormControl>
             <FormControl required fullWidth margin="normal">
@@ -47,6 +75,7 @@ class LoginComponent extends React.Component {
                 autoComplete="password"
                 onChange={(e) => this.userTyping("password", e)}
                 id="signin-password-input"
+                type="password"
               ></Input>
             </FormControl>
             <Button type="submit" fullWidth variant="contained" color='primary' className={classes.submit}>Login</Button>
