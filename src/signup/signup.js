@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react';
 import styles from './styles';
 import withStyles from '@material-ui/core/styles/withStyles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -99,6 +98,8 @@ class SignupComponent extends React.Component {
                 break;
             case "passwordConfirmation":
                 this.setState({ passwordConfirmation: e.target.value });
+                break;
+            default:
                 break;
         }
     }
