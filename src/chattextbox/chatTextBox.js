@@ -18,7 +18,7 @@ class ChatTextBoxComponent extends React.Component {
   messageValid = (text) => text && text.replace(/\s/g, '').length;
 
   userClickedInput = () => {
-    console.log("clicked input")
+    this.props.messageRead();
   }
 
   submitMessage = () => {
@@ -34,8 +34,8 @@ class ChatTextBoxComponent extends React.Component {
     return(
       <div className={classes.chatTextBoxContainer}>
         <TextField placeholder='Deine Nachricht...' onKeyUp={(e) => this.userTyping(e)}
-        id='chattextbox' className={classes.chatTextBox} onFocus={this.userClickedInput}></TextField>
-        <Send onClick={this.submitMessage} className={classes.sendBtn}></Send>
+        id='chattextbox' className={classes.chatTextBox} onFocus={this.userClickedInput} />
+        <Send onClick={this.submitMessage} className={classes.sendBtn}/>
       </div>
     );
   }

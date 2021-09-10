@@ -1,3 +1,5 @@
+import { lightBlue } from '@material-ui/core/colors';
+
 const styles = theme => ({
     root: {
       backgroundColor: theme.palette.background.paper,
@@ -18,7 +20,11 @@ const styles = theme => ({
       position: 'absolute',
       top: '0',
       right: '5px'
-    }
+    },
+    avatar: {
+        color: "white",
+        backgroundColor: lightBlue[500],
+    },
   });
   
   export default styles;

@@ -1,6 +1,10 @@
 import React from 'react';
 import styles from './styles';
 import { withStyles } from '@material-ui/styles';
+import Typography from "@material-ui/core/Typography";
+import TimeAgo from "react-timeago";
+import germanStrings from 'react-timeago/lib/language-strings/de';
+import buildFormatter from 'react-timeago/lib/formatters/buildFormatter';
 
 class ChatViewComponent extends React.Component {
 
@@ -12,16 +16,20 @@ class ChatViewComponent extends React.Component {
         }
     }
 
+    keyGenerator = (index) => {
+        return index + "_message";
+    }
+
     render() {
         const { classes, user, chat } = this.props;
 
         if(chat === undefined) {
-            return(<main className={classes.content} id='chatview-container'></main>);
+            return(<main className={classes.content} id='chatview-container'/>);
         } else {
             return(
                 <div>
                     <div className={classes.chatHeader}>
-                        {chat.users.filter(_user => _user !== user )}
+                        Unterhaltung mit {chat.users.filter(_user => _user !== user )}
                     </div>
                     <main className={classes.content} id='chatview-container'>
                         {
@@ -29,6 +37,7 @@ class ChatViewComponent extends React.Component {
                                 return(
                                     <div key={_index} className={_message.sender === user ? classes.userSent : classes.friendSent }>
                                         {_message.message}
+                                        <Typography variant="subtitle2" style={{ color: "#C2C5BB" }}><TimeAgo date={_message.timestamp} formatter={buildFormatter(germanStrings)}/></Typography>
                                     </div>
                                 )
                             })

@@ -9,6 +9,8 @@ import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import firebase from 'firebase';
+import {ThemeProvider} from "@material-ui/styles";
+import {darkTheme} from "../ui/theme";
 
 class SignupComponent extends React.Component {
 
@@ -23,40 +25,47 @@ class SignupComponent extends React.Component {
     }
 
     render() {
-        const { classes } = this.props;
-
+        const {classes} = this.props;
+        document.title = "TrueBlue | Kontoerstellung";
         return (
-            <main className={classes.main}>
-                <CssBaseline></CssBaseline>
-                <Paper className={classes.paper}>
-                    <Typography component="h1" variant="h5">
-                        Registriere Dich!
-                    </Typography>
-                    <form className={classes.form} onSubmit={(e) => this.submitSignup(e)}>
-                        <FormControl required fullWidth margin="normal">
-                            <InputLabel htmlFor="signup-email-input">Deine E-Mail Adresse</InputLabel>
-                            <Input autoComplete="email" autoFocus id="signup-email-input" onChange={(e) => this.userTyping("email", e)}></Input>
-                        </FormControl>
-                        <FormControl required fullWidth margin="normal">
-                            <InputLabel htmlFor="signup-password-input">Wähle ein Passwort</InputLabel>
-                            <Input type="password" onChange={(e) => this.userTyping("password", e)} id="signup-password-input"></Input>
-                        </FormControl>
-                        <FormControl required fullWidth margin="normal">
-                            <InputLabel htmlFor="signup-password-confirmation-input">Bestätige dein Passwort</InputLabel>
-                            <Input type="password" onChange={(e) => this.userTyping("passwordConfirmation", e)} id="signup-password-confirmation-input"></Input>
-                        </FormControl>
-                        <Button type='submit' fullWidth variant='contained' color='primary' className={classes.submit}>Regisitrieren</Button>
-                    </form>
-                    {
-                        this.state.signupError ?
-                        <Typography className={classes.errorText} component="h5" variant="h6">
-                             {this.state.signupError}
-                        </Typography> : null
-                    }
-                    <h4 className={classes.hasAccountHeader}>Hast du bereits ein Konto?</h4>
-                    <a className={classes.logInLink} href="/login">Logge dich ein!</a>
-                </Paper>
-            </main>
+            <ThemeProvider theme={darkTheme}>
+                <main className={classes.main}>
+                    <CssBaseline/>
+                    <Paper className={classes.paper}>
+                        <Typography component="h1" variant="h5">
+                            Registriere Dich!
+                        </Typography>
+                        <form className={classes.form} onSubmit={(e) => this.submitSignup(e)}>
+                            <FormControl required fullWidth margin="normal">
+                                <InputLabel htmlFor="signup-email-input">Deine E-Mail Adresse</InputLabel>
+                                <Input autoComplete="email" autoFocus id="signup-email-input"
+                                       onChange={(e) => this.userTyping("email", e)}/>
+                            </FormControl>
+                            <FormControl required fullWidth margin="normal">
+                                <InputLabel htmlFor="signup-password-input">Wähle ein Passwort</InputLabel>
+                                <Input type="password" onChange={(e) => this.userTyping("password", e)}
+                                       id="signup-password-input"/>
+                            </FormControl>
+                            <FormControl required fullWidth margin="normal">
+                                <InputLabel htmlFor="signup-password-confirmation-input">Bestätige dein
+                                    Passwort</InputLabel>
+                                <Input type="password" onChange={(e) => this.userTyping("passwordConfirmation", e)}
+                                       id="signup-password-confirmation-input"/>
+                            </FormControl>
+                            <Button type='submit' fullWidth variant='contained' color='primary'
+                                    className={classes.submit}>Regisitrieren</Button>
+                        </form>
+                        {
+                            this.state.signupError ?
+                                <Typography className={classes.errorText} component="h5" variant="h6">
+                                    {this.state.signupError}
+                                </Typography> : null
+                        }
+                        <h4 className={classes.hasAccountHeader}>Hast du bereits ein Konto?</h4>
+                        <a className={classes.logInLink} href="/">Logge dich ein!</a>
+                    </Paper>
+                </main>
+            </ThemeProvider>
         );
     }
 
@@ -64,9 +73,9 @@ class SignupComponent extends React.Component {
 
     submitSignup = (e) => {
         e.preventDefault();
-        
-        if(!this.formIsValid()) {
-            this.setState({ signupError: "Die Passwörter stimmen nicht überein!" });
+
+        if (!this.formIsValid()) {
+            this.setState({signupError: "Die Passwörter stimmen nicht überein!"});
             return;
         }
 
@@ -79,25 +88,25 @@ class SignupComponent extends React.Component {
                     this.props.history.push("/dashboard");
                 }, dbError => {
                     console.log(dbError);
-                    this.setState({ signupError: "Nutzer konnt enicht erstellt werden"});
+                    this.setState({signupError: "Nutzer konnt enicht erstellt werden"});
                 });
             }, authError => {
                 console.log(authError);
-                this.setState({ signupError: "Nutzer konnt enicht erstellt werden"});
+                this.setState({signupError: "Nutzer konnt enicht erstellt werden"});
             }
         )
     }
 
     userTyping = (type, e) => {
-        switch(type) {
+        switch (type) {
             case "email":
-                this.setState({ email: e.target.value });
+                this.setState({email: e.target.value});
                 break;
             case "password":
-                this.setState({ password: e.target.value });
+                this.setState({password: e.target.value});
                 break;
             case "passwordConfirmation":
-                this.setState({ passwordConfirmation: e.target.value });
+                this.setState({passwordConfirmation: e.target.value});
                 break;
             default:
                 break;
