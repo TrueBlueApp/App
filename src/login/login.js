@@ -48,8 +48,7 @@ class LoginComponent extends React.Component {
         await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
             this.props.history.push('/dashboard');
         }, error => {
-            this.setState({loginError: 'Konnte nicht zum Server verbinden... '});
-            console.log(error);
+            this.setState({loginError: "Es ist ein Fehler aufgreteten..." });
         });
     }
 

@@ -87,12 +87,10 @@ class SignupComponent extends React.Component {
                 firebase.firestore().collection("users").doc(this.state.email).set(userObject).then(() => {
                     this.props.history.push("/dashboard");
                 }, dbError => {
-                    console.log(dbError);
-                    this.setState({signupError: "Nutzer konnt enicht erstellt werden"});
+                    this.setState({signupError: "Es ist ein Fehler getreten..." });
                 });
             }, authError => {
-                console.log(authError);
-                this.setState({signupError: "Nutzer konnt enicht erstellt werden"});
+                this.setState({signupError: "Es ist ein Fehler getreten..." });
             }
         )
     }

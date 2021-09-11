@@ -79,7 +79,7 @@ class DashboardComponent extends React.Component {
         const usersInChat = docKey.split(':');
         const chat = this.state.chats.find(_chat => usersInChat.every(_user => _chat.users.includes(_user)));
         this.setState({ newChatFormVisible: false });
-        await this.selectChat(this.state.chats.indexOf(chat));
+        this.selectChat(this.state.chats.indexOf(chat));
         this.submitMessage(message);
     }
 
@@ -117,6 +117,7 @@ class DashboardComponent extends React.Component {
                 {
                     this.state.newChatFormVisible ? <NewChatComponent goToChat={this.goToChat} newChatSubmit={this.newChatSubmit}/> : null
                 }
+                <Button className={classes.settingsBtn}>Einstellungen</Button>
                 <Button onClick={this.signOut} className={classes.signOutBtn}>Abmelden</Button>
             </ThemeProvider>
         );

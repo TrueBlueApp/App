@@ -39,50 +39,53 @@ class ChatListComponent extends React.Component {
                         onClick={this.newChat}
                     >Neue Nachricht</Button>
                     <List>
-                        {this.props.chats.map((_chat, _index) => {
-                            return (
-                                <div key={_index}>
-                                    <ListItem
-                                        onClick={() => this.selectChat(_index)}
-                                        className={classes.listItem}
-                                        selected={this.props.selectedChatIndex === _index}
-                                        alignItems="flex-start"
-                                    >
-                                        <ListItemAvatar>
-                                            <Avatar alt="Remy Sharp" className={classes.avatar}>
-                                                {
-                                                    _chat.users.filter((_user) => _user !== this.props.userEmail)[0].split("")[0].toUpperCase()
+                        {
+                            this.props.chats.map((_chat, _index) => {
+                                //console.log("Test", _chat.latestActivity)
+                                return (
+                                    <div key={_index} latestactivity={_chat.latestActivity}>
+                                        <ListItem
+                                            onClick={() => this.selectChat(_index)}
+                                            className={classes.listItem}
+                                            selected={this.props.selectedChatIndex === _index}
+                                            alignItems="flex-start"
+                                        >
+                                            <ListItemAvatar>
+                                                <Avatar alt="Remy Sharp" className={classes.avatar}>
+                                                    {
+                                                        _chat.users.filter((_user) => _user !== this.props.userEmail)[0].split("")[0].toUpperCase()
+                                                    }
+                                                </Avatar>
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={
+                                                    _chat.users.filter(
+                                                        (_user) => _user !== this.props.userEmail
+                                                    )[0]
                                                 }
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText
-                                            primary={
-                                                _chat.users.filter(
-                                                    (_user) => _user !== this.props.userEmail
-                                                )[0]
+                                                secondary={
+                                                    <React.Fragment>
+                                                        <Typography component="span" color="textPrimary">
+                                                            {_chat.messages[
+                                                            _chat.messages.length - 1
+                                                                ].message.substring(0, 30) + " ..."}
+                                                        </Typography>
+                                                    </React.Fragment>
+                                                }
+                                            />
+                                            {
+                                                _chat.receiverRead === false && !this.userIsSender(_chat) ?
+                                                    <ListItemIcon>
+                                                        <NotificationImportant className={classes.unreadMessage}/>
+                                                        <Sound url="scratch-389.mp3" playStatus={Sound.status.PLAYING}/>
+                                                    </ListItemIcon> : null
                                             }
-                                            secondary={
-                                                <React.Fragment>
-                                                    <Typography component="span" color="textPrimary">
-                                                        {_chat.messages[
-                                                        _chat.messages.length - 1
-                                                            ].message.substring(0, 30) + " ..."}
-                                                    </Typography>
-                                                </React.Fragment>
-                                            }
-                                        />
-                                        {
-                                            _chat.receiverRead === false && !this.userIsSender(_chat) ?
-                                                <ListItemIcon>
-                                                    <NotificationImportant className={classes.unreadMessage}/>
-                                                    <Sound url="scratch-389.mp3" playStatus={Sound.status.PLAYING}/>
-                                                </ListItemIcon> : null
-                                        }
-                                    </ListItem>
-                                    <Divider/>
-                                </div>
-                            );
-                        })}
+                                        </ListItem>
+                                        <Divider/>
+                                    </div>
+                                );
+                            })
+                        }
                     </List>
                 </main>
             );
