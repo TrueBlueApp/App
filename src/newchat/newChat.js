@@ -11,6 +11,23 @@ import {
   CssBaseline,
 } from "@material-ui/core";
 import firebase from "firebase/compat/app";
+import { app } from "../firebase-config";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  setDoc,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
+
+const auth = getAuth();
+const db = getFirestore();
 
 class NewChatComponent extends React.Component {
   constructor() {
@@ -54,7 +71,8 @@ class NewChatComponent extends React.Component {
   };
 
   userExists = async () => {
-    const usersSnapshot = await firebase.firestore().collection("users").get();
+    //const usersSnapshot = await firebase.firestore().collection("users").get();
+    const usersSnapshot = await getDocs(collection(db, "users"));
     const exists = usersSnapshot.docs
       .map((_doc) => _doc.data().email)
       .includes(this.state.username);
@@ -63,18 +81,18 @@ class NewChatComponent extends React.Component {
   };
 
   buildDocKey = () => {
-    return [firebase.auth().currentUser.email, this.state.username]
-      .sort()
-      .join(":");
+    return [auth.currentUser.email, this.state.username].sort().join(":");
   };
 
   chatExists = async () => {
     const docKey = this.buildDocKey();
-    const chat = await firebase
+    /*const chat = await firebase
       .firestore()
       .collection("chats")
       .doc(docKey)
-      .get();
+      .get();*/
+
+    const chat = await getDoc(doc(db, "chats", docKey));
     return chat.exists;
   };
 

@@ -11,8 +11,17 @@ import { ThemeProvider } from "@material-ui/styles";
 
 import { app } from "../firebase-config";
 import firebase from "firebase/compat";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  setDoc,
+} from "firebase/firestore";
 import { createBrowserHistory } from "history";
 
 const history = createBrowserHistory();
@@ -36,14 +45,15 @@ class DashboardComponent extends React.Component {
       if (!_user) {
         history.push("/");
       } else {
-        await firebase
-          .firestore()
-          .collection("chats")
-          .where("users", "array-contains", _user.email)
-          .onSnapshot(async (result) => {
-            const chats = result.docs.map((_doc) => _doc.data());
-            await this.setState({ email: _user.email, chats: chats });
-          });
+        const q = query(
+          collection(db, "chats"),
+          where("users", "array-contains", _user.email)
+        );
+        await onSnapshot(q, async (result) => {
+          console.log(result);
+          const chats = result.docs.map((_doc) => _doc.data());
+          await this.setState({ email: _user.email, chats: chats });
+        });
       }
     });
   };
@@ -60,11 +70,7 @@ class DashboardComponent extends React.Component {
       )[0]
     );
     if (this.clickedChatNotSender(this.state.selectedChat)) {
-      firebase.firestore().collection("chats").doc(docKey).update({
-        receiverRead: true,
-      });
-    } else {
-      console.log("user was sender");
+      updateDoc(db, "chats", docKey, { receiverRead: true });
     }
   };
 
@@ -77,9 +83,9 @@ class DashboardComponent extends React.Component {
     this.setState({ newChatFormVisible: true, selectedChat: null });
   };
 
-  signOut = () => firebase.auth().signOut();
+  signOut = () => signOut(auth);
 
-  buildDocKey = (friend) => [this.state.email, friend].sort().join(":");
+  buildDocKey = (partner) => [this.state.email, partner].sort().join(":");
 
   submitMessage = (message) => {
     const docKey = this.buildDocKey(
@@ -87,18 +93,14 @@ class DashboardComponent extends React.Component {
         (_user) => _user !== this.state.email
       )[0]
     );
-    firebase
-      .firestore()
-      .collection("chats")
-      .doc(docKey)
-      .update({
-        messages: firebase.firestore.FieldValue.arrayUnion({
-          sender: this.state.email,
-          message: message,
-          timestamp: Date.now(),
-        }),
-        receiverRead: false,
-      });
+    updateDoc(doc(db, "chats", docKey), {
+      messages: firebase.firestore.FieldValue.arrayUnion({
+        sender: this.state.email,
+        message: message,
+        timestamp: Date.now(),
+      }),
+      receiverRead: false,
+    });
   };
 
   goToChat = async (docKey, message) => {
@@ -113,7 +115,7 @@ class DashboardComponent extends React.Component {
 
   newChatSubmit = async (chat) => {
     const docKey = this.buildDocKey(chat.sendTo);
-    await firebase
+    /*await firebase
       .firestore()
       .collection("chats")
       .doc(docKey)
@@ -127,7 +129,19 @@ class DashboardComponent extends React.Component {
             timestamp: Date.now(),
           },
         ],
-      });
+      });*/
+    const docRef = doc(db, "chats", docKey);
+    await setDoc(docRef, {
+      receiverRead: false,
+      users: [this.state.email, chat.sendTo],
+      messages: [
+        {
+          message: chat.message,
+          sender: this.state.email,
+          timestamp: Date.now(),
+        },
+      ],
+    });
     this.setState({ newChatFormVisible: false });
     await this.selectChat(this.state.chats.length - 1);
   };
