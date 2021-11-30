@@ -66,12 +66,12 @@ class NewChatComponent extends React.Component {
     const userExists = await this.userExists();
     if (userExists) {
       const chatExists = await this.chatExists();
+      console.log(chatExists);
       chatExists ? this.goToChat() : this.createChat();
     }
   };
 
   userExists = async () => {
-    //const usersSnapshot = await firebase.firestore().collection("users").get();
     const usersSnapshot = await getDocs(collection(db, "users"));
     const exists = usersSnapshot.docs
       .map((_doc) => _doc.data().email)
@@ -93,7 +93,7 @@ class NewChatComponent extends React.Component {
       .get();*/
 
     const chat = await getDoc(doc(db, "chats", docKey));
-    return chat.exists;
+    return chat.exists();
   };
 
   render() {

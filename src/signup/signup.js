@@ -8,9 +8,14 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import firebase from "firebase/compat/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { ThemeProvider } from "@material-ui/styles";
 import { darkTheme } from "../ui/theme";
+import { Navigate } from "react-router";
+
+const auth = getAuth();
+const db = getFirestore();
 
 class SignupComponent extends React.Component {
   constructor() {
@@ -20,10 +25,68 @@ class SignupComponent extends React.Component {
       password: null,
       passwordConfirmation: null,
       signupError: "",
+      redirect: null,
     };
   }
 
+  formIsValid = () => this.state.password === this.state.passwordConfirmation;
+
+  navigateToDashboard = () => {
+    this.setState({ redirect: "/dashboard" });
+  };
+
+  submitSignup = (e) => {
+    e.preventDefault();
+
+    if (!this.formIsValid()) {
+      this.setState({ signupError: "Die Passwörter stimmen nicht überein!" });
+      return;
+    }
+
+    createUserWithEmailAndPassword(
+      auth,
+      this.state.email,
+      this.state.password
+    ).then(
+      (authResponse) => {
+        const userObject = {
+          email: authResponse.user.email,
+        };
+        setDoc(doc(db, "users", this.state.email), userObject).then(
+          () => {
+            this.navigateToDashboard();
+          },
+          (dbError) => {
+            this.setState({ signupError: dbError.message });
+          }
+        );
+      },
+      (authError) => {
+        this.setState({ signupError: authError.message });
+      }
+    );
+  };
+
+  userTyping = (type, e) => {
+    switch (type) {
+      case "email":
+        this.setState({ email: e.target.value });
+        break;
+      case "password":
+        this.setState({ password: e.target.value });
+        break;
+      case "passwordConfirmation":
+        this.setState({ passwordConfirmation: e.target.value });
+        break;
+      default:
+        break;
+    }
+  };
+
   render() {
+    if (this.state.redirect) {
+      return <Navigate to={this.state.redirect} />;
+    }
     const { classes } = this.props;
     document.title = "TrueBlue | Kontoerstellung";
     return (
@@ -99,60 +162,6 @@ class SignupComponent extends React.Component {
       </ThemeProvider>
     );
   }
-
-  formIsValid = () => this.state.password === this.state.passwordConfirmation;
-
-  submitSignup = (e) => {
-    e.preventDefault();
-
-    if (!this.formIsValid()) {
-      this.setState({ signupError: "Die Passwörter stimmen nicht überein!" });
-      return;
-    }
-
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then(
-        (authResponse) => {
-          const userObject = {
-            email: authResponse.user.email,
-          };
-          firebase
-            .firestore()
-            .collection("users")
-            .doc(this.state.email)
-            .set(userObject)
-            .then(
-              () => {
-                this.props.history.push("/dashboard");
-              },
-              (dbError) => {
-                this.setState({ signupError: "Es ist ein Fehler getreten..." });
-              }
-            );
-        },
-        (authError) => {
-          this.setState({ signupError: "Es ist ein Fehler getreten..." });
-        }
-      );
-  };
-
-  userTyping = (type, e) => {
-    switch (type) {
-      case "email":
-        this.setState({ email: e.target.value });
-        break;
-      case "password":
-        this.setState({ password: e.target.value });
-        break;
-      case "passwordConfirmation":
-        this.setState({ passwordConfirmation: e.target.value });
-        break;
-      default:
-        break;
-    }
-  };
 }
 
 export default withStyles(styles)(SignupComponent);

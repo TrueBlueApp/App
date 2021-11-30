@@ -12,9 +12,8 @@ import { app } from "../firebase-config";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { ThemeProvider } from "@material-ui/styles";
 import { darkTheme } from "../ui/theme";
-import { createBrowserHistory } from "history";
+import { Navigate } from "react-router";
 
-const history = createBrowserHistory();
 const auth = getAuth();
 
 class LoginComponent extends React.Component {
@@ -24,15 +23,20 @@ class LoginComponent extends React.Component {
       email: null,
       password: null,
       loginError: "",
+      redirect: null,
     };
   }
 
   componentDidMount() {
     const user = getAuth().currentUser;
     if (user) {
-      history.push("/dashboard");
+      this.navigateToDashboard();
     }
   }
+
+  navigateToDashboard = () => {
+    this.setState({ redirect: "/dashboard" });
+  };
 
   userTyping = (type, e) => {
     switch (type) {
@@ -56,7 +60,7 @@ class LoginComponent extends React.Component {
       this.state.password
     ).then(
       () => {
-        history.push("/dashboard");
+        this.navigateToDashboard();
       },
       (error) => {
         this.setState({ loginError: error.message });
@@ -66,6 +70,9 @@ class LoginComponent extends React.Component {
   };
 
   render() {
+    if (this.state.redirect) {
+      return <Navigate to={this.state.redirect} />;
+    }
     const { classes } = this.props;
     document.title = "TrueBlue | Login";
     return (

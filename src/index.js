@@ -7,7 +7,9 @@ import LoginComponent from "./login/login";
 import SignupComponent from "./signup/signup";
 import DashboardComponent from "./dashboard/dashboard";
 import { app } from "./firebase-config";
+import { Navigate } from "react-router";
 
+require("dotenv").config();
 require("firebase/database");
 
 const routing = (
@@ -17,6 +19,7 @@ const routing = (
         <Route exact path="/" element={<LoginComponent />} />
         <Route exact path="/signup" element={<SignupComponent />} />
         <Route exact path="/dashboard" element={<DashboardComponent />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   </Router>

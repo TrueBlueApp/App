@@ -22,9 +22,7 @@ import {
   updateDoc,
   setDoc,
 } from "firebase/firestore";
-import { createBrowserHistory } from "history";
-
-const history = createBrowserHistory();
+import { Navigate } from "react-router";
 
 const auth = getAuth();
 const db = getFirestore();
@@ -37,21 +35,33 @@ class DashboardComponent extends React.Component {
       newChatFormVisible: false,
       email: null,
       chats: [],
+      redirect: null,
     };
   }
 
   componentDidMount = () => {
     onAuthStateChanged(auth, async (_user) => {
       if (!_user) {
-        history.push("/");
+        this.setState({ redirect: "/" });
       } else {
         const q = query(
           collection(db, "chats"),
           where("users", "array-contains", _user.email)
         );
         await onSnapshot(q, async (result) => {
-          console.log(result);
           const chats = result.docs.map((_doc) => _doc.data());
+          //Sort chats by last message date
+          chats.sort((a, b) => {
+            const timestampA = a.messages[a.messages.length - 1].timestamp;
+            const timestampB = b.messages[b.messages.length - 1].timestamp;
+            if (timestampA < timestampB) {
+              return 1;
+            } else if (timestampA > timestampB) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
           await this.setState({ email: _user.email, chats: chats });
         });
       }
@@ -69,9 +79,10 @@ class DashboardComponent extends React.Component {
         (_user) => _user !== this.state.email
       )[0]
     );
-    if (this.clickedChatNotSender(this.state.selectedChat)) {
-      updateDoc(db, "chats", docKey, { receiverRead: true });
-    }
+
+    updateDoc(doc(db, "chats", docKey), {
+      receiverRead: true,
+    });
   };
 
   selectChat = async (chatIndex) => {
@@ -83,7 +94,10 @@ class DashboardComponent extends React.Component {
     this.setState({ newChatFormVisible: true, selectedChat: null });
   };
 
-  signOut = () => signOut(auth);
+  signOut = () => {
+    signOut(auth);
+    this.setState({ redirect: "/" });
+  };
 
   buildDocKey = (partner) => [this.state.email, partner].sort().join(":");
 
@@ -101,6 +115,7 @@ class DashboardComponent extends React.Component {
       }),
       receiverRead: false,
     });
+    this.setState({ selectedChat: 0 });
   };
 
   goToChat = async (docKey, message) => {
@@ -115,38 +130,29 @@ class DashboardComponent extends React.Component {
 
   newChatSubmit = async (chat) => {
     const docKey = this.buildDocKey(chat.sendTo);
-    /*await firebase
-      .firestore()
-      .collection("chats")
-      .doc(docKey)
-      .set({
-        receiverRead: false,
-        users: [this.state.email, chat.sendTo],
-        messages: [
-          {
-            message: chat.message,
-            sender: this.state.email,
-            timestamp: Date.now(),
-          },
-        ],
-      });*/
     const docRef = doc(db, "chats", docKey);
-    await setDoc(docRef, {
-      receiverRead: false,
+
+    const newChat = {
       users: [this.state.email, chat.sendTo],
       messages: [
         {
-          message: chat.message,
           sender: this.state.email,
+          message: chat.message,
           timestamp: Date.now(),
         },
       ],
-    });
+      receiverRead: false,
+    };
+    await setDoc(docRef, newChat);
+
     this.setState({ newChatFormVisible: false });
-    await this.selectChat(this.state.chats.length - 1);
+    this.setState({ selectedChat: 0 });
   };
 
   render() {
+    if (this.state.redirect) {
+      return <Navigate to={this.state.redirect} />;
+    }
     const { classes } = this.props;
     document.title = "TrueBlue | Dashboard";
     return (
