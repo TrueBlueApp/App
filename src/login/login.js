@@ -80,6 +80,7 @@ class LoginComponent extends React.Component {
         <main className={classes.main}>
           <CssBaseline />
           <Paper className={classes.paper}>
+            <img src="/logo.png" alt="TrueBlue" width="20%" />
             <Typography component="h1" variant="h5">
               Logge dich ein!
             </Typography>

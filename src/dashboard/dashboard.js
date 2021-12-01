@@ -6,6 +6,7 @@ import ChatListComponent from "../chatlist/chatList";
 import ChatViewComponent from "../chatview/chatView";
 import ChatTextBoxComponent from "../chattextbox/chatTextBox";
 import NewChatComponent from "../newchat/newChat";
+import SettingsCompoennt from "../settings/settings";
 import { darkTheme } from "../ui/theme";
 import { ThemeProvider } from "@material-ui/styles";
 
@@ -33,6 +34,7 @@ class DashboardComponent extends React.Component {
     this.state = {
       selectedChat: null,
       newChatFormVisible: false,
+      settingsVisible: false,
       email: null,
       chats: [],
       redirect: null,
@@ -86,12 +88,28 @@ class DashboardComponent extends React.Component {
   };
 
   selectChat = async (chatIndex) => {
-    await this.setState({ selectedChat: chatIndex, newChatFormVisible: false });
+    await this.setState({
+      selectedChat: chatIndex,
+      newChatFormVisible: false,
+      settingsVisible: false,
+    });
     this.messageRead();
   };
 
   newChatButtonClicked = () => {
-    this.setState({ newChatFormVisible: true, selectedChat: null });
+    this.setState({
+      newChatFormVisible: true,
+      selectedChat: null,
+      settingsVisible: false,
+    });
+  };
+
+  settingsButtonClicked = () => {
+    this.setState({
+      settingsVisible: true,
+      newChatFormVisible: false,
+      selectedChat: null,
+    });
   };
 
   signOut = () => {
@@ -123,7 +141,7 @@ class DashboardComponent extends React.Component {
     const chat = this.state.chats.find((_chat) =>
       usersInChat.every((_user) => _chat.users.includes(_user))
     );
-    this.setState({ newChatFormVisible: false });
+    this.setState({ newChatFormVisible: false, settingsVisible: false });
     this.selectChat(this.state.chats.indexOf(chat));
     this.submitMessage(message);
   };
@@ -183,7 +201,13 @@ class DashboardComponent extends React.Component {
             newChatSubmit={this.newChatSubmit}
           />
         ) : null}
-        <Button className={classes.settingsBtn}>Einstellungen</Button>
+        {this.state.settingsVisible ? <SettingsCompoennt /> : null};
+        <Button
+          className={classes.settingsBtn}
+          onClick={this.settingsButtonClicked}
+        >
+          Einstellungen
+        </Button>
         <Button onClick={this.signOut} className={classes.signOutBtn}>
           Abmelden
         </Button>

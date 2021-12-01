@@ -12,16 +12,11 @@ import {
 } from "@material-ui/core";
 import firebase from "firebase/compat/app";
 import { app } from "../firebase-config";
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
-  query,
-  where,
-  onSnapshot,
   doc,
-  updateDoc,
-  setDoc,
   getDoc,
   getDocs,
 } from "firebase/firestore";
@@ -86,12 +81,6 @@ class NewChatComponent extends React.Component {
 
   chatExists = async () => {
     const docKey = this.buildDocKey();
-    /*const chat = await firebase
-      .firestore()
-      .collection("chats")
-      .doc(docKey)
-      .get();*/
-
     const chat = await getDoc(doc(db, "chats", docKey));
     return chat.exists();
   };
