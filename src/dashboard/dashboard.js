@@ -45,8 +45,6 @@ class DashboardComponent extends React.Component {
   }
 
   componentDidMount = () => {
-    Notification.requestPermission();
-    //Send notification
     onAuthStateChanged(auth, async (_user) => {
       if (!_user) {
         this.setState({ redirect: "/" });
