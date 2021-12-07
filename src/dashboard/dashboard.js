@@ -24,9 +24,11 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { Navigate } from "react-router";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
 const auth = getAuth();
 const db = getFirestore();
+const storage = getStorage();
 
 class DashboardComponent extends React.Component {
   constructor() {
@@ -38,10 +40,13 @@ class DashboardComponent extends React.Component {
       email: null,
       chats: [],
       redirect: null,
+      userPictures: [],
     };
   }
 
   componentDidMount = () => {
+    Notification.requestPermission();
+    //Send notification
     onAuthStateChanged(auth, async (_user) => {
       if (!_user) {
         this.setState({ redirect: "/" });
@@ -64,11 +69,41 @@ class DashboardComponent extends React.Component {
               return 0;
             }
           });
-          await this.setState({ email: _user.email, chats: chats });
+          //Get Profile Pictures for each user
+          const userPictures = [];
+          for (let i = 0; i < chats.length; i++) {
+            const user = chats[i].users.filter(
+              (_user) => _user !== auth.currentUser.email
+            )[0];
+            const url = await this.getProfilePicture(user);
+            userPictures.push(url);
+          }
+          await this.setState({
+            email: _user.email,
+            chats: chats,
+            userPictures: userPictures,
+          });
         });
       }
     });
   };
+
+  async getProfilePicture(email) {
+    const storageRef = ref(storage);
+    const imageRef = ref(storageRef, `images/${email}`);
+    var url = null;
+    await getDownloadURL(imageRef)
+      .then(function (profilePicture) {
+        url = profilePicture;
+      })
+      .catch(function (error) {
+        url =
+          "https://eu.ui-avatars.com/api/?background=random&name=" +
+          email +
+          "&size=256x256";
+      });
+    return url;
+  }
 
   clickedChatNotSender = (chatIndex) =>
     this.state.chats[chatIndex].messages[
@@ -182,6 +217,7 @@ class DashboardComponent extends React.Component {
           chats={this.state.chats}
           userEmail={this.state.email}
           selectedChatIndex={this.state.selectedChat}
+          userPictures={this.state.userPictures}
         />
         {this.state.newChatFormVisible ? null : (
           <ChatViewComponent
@@ -201,7 +237,10 @@ class DashboardComponent extends React.Component {
             newChatSubmit={this.newChatSubmit}
           />
         ) : null}
-        {this.state.settingsVisible ? <SettingsCompoennt /> : null};
+        {this.state.settingsVisible ? (
+          <SettingsCompoennt email={this.state.email} />
+        ) : null}
+        ;
         <Button
           className={classes.settingsBtn}
           onClick={this.settingsButtonClicked}

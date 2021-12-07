@@ -1,4 +1,5 @@
 import React from "react";
+import { app } from "../firebase-config";
 import { withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import styles from "./styles";
@@ -12,6 +13,19 @@ import Avatar from "@material-ui/core/Avatar";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Divider from "@material-ui/core/Divider";
 import Sound from "react-sound";
+import { getAuth } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
+const auth = getAuth();
+const db = getFirestore();
+const storage = getStorage();
 
 class ChatListComponent extends React.Component {
   newChat = () => {
@@ -51,12 +65,11 @@ class ChatListComponent extends React.Component {
                     alignItems="flex-start"
                   >
                     <ListItemAvatar>
-                      <Avatar alt="Remy Sharp" className={classes.avatar}>
-                        {_chat.users
-                          .filter((_user) => _user !== this.props.userEmail)[0]
-                          .split("")[0]
-                          .toUpperCase()}
-                      </Avatar>
+                      <img
+                        src={this.props.userPictures[_index]}
+                        alt="avatar"
+                        className={classes.avatar}
+                      />
                     </ListItemAvatar>
                     <ListItemText
                       primary={

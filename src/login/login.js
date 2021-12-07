@@ -64,7 +64,6 @@ class LoginComponent extends React.Component {
       },
       (error) => {
         this.setState({ loginError: error.message });
-        console.log(error);
       }
     );
   };

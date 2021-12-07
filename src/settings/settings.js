@@ -1,28 +1,17 @@
 import React from "react";
 import styles from "./styles";
 import { app } from "../firebase-config";
-import { getAuth } from "firebase/auth";
-import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-} from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import {
   FormControl,
-  Input,
   Button,
   Paper,
-  InputLabel,
   withStyles,
   Typography,
   CssBaseline,
-  Avatar,
 } from "@material-ui/core";
 
-const auth = getAuth();
 const db = getFirestore();
 const storage = getStorage();
 
@@ -30,16 +19,14 @@ class SettingsComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      hasProfilePicture: false,
+      profilePicture: null,
     };
   }
 
   async componentDidMount() {
-    /*if (this.doesUserHasProfilePicture()) {
-      this.setState({ hasProfilePicture: true });
-      this.getProfilePicture();
-    }*/
-    console.log(await this.doesUserHasProfilePicture());
+    this.setState({
+      profilePicture: await this.getProfilePicture(),
+    });
   }
 
   handleChangeImage = (e) => {
@@ -50,7 +37,7 @@ class SettingsComponent extends React.Component {
   };
 
   uploadFile = (file) => {
-    const email = auth.currentUser.email;
+    const email = this.props.email;
     const storageRef = ref(storage);
     const imageRef = ref(storageRef, `images/${email}`);
     uploadBytes(imageRef, file).then(function (snapshot) {
@@ -59,30 +46,22 @@ class SettingsComponent extends React.Component {
   };
 
   //Get profile picture from firebase storage
-  getProfilePicture() {
-    const email = auth.currentUser.email;
+  async getProfilePicture() {
+    const email = this.props.email;
     const storageRef = ref(storage);
     const imageRef = ref(storageRef, `images/${email}`);
-    getDownloadURL(imageRef).then(function (url) {
-      return url;
-    });
-  }
-
-  //Check if user has profile picture
-  async doesUserHasProfilePicture() {
-    const email = auth.currentUser.email;
-    const storageRef = ref(storage);
-    const imageRef = ref(storageRef, `images/${email}`);
+    var url = null;
     await getDownloadURL(imageRef)
-      .then(function (url) {
-        console.log(url);
-        return true;
+      .then(function (profilePicture) {
+        url = profilePicture;
       })
       .catch(function (error) {
-        console.log(error);
-        return false;
+        url =
+          "https://eu.ui-avatars.com/api/?background=random&name=" +
+          email +
+          "&size=256x256";
       });
-    return false;
+    return url;
   }
 
   render() {
@@ -95,7 +74,11 @@ class SettingsComponent extends React.Component {
           <Typography component="h1" variant="h5">
             Dein Profilbild
           </Typography>
-          {this.doesUserHasProfilePicture() ? <p>Ja</p> : <p>Nein</p>}
+          <img
+            src={this.state.profilePicture}
+            alt="Profilepicture"
+            className={classes.avatar}
+          />
 
           <form
             className={classes.form}
@@ -108,7 +91,7 @@ class SettingsComponent extends React.Component {
                   type="file"
                   hidden
                   onChange={this.handleChangeImage}
-                  accept="image/png"
+                  accept="image/png, image/jpeg, image/jpg"
                 />
               </Button>
             </FormControl>

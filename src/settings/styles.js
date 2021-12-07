@@ -34,8 +34,11 @@ const styles = (theme) => ({
     textAlign: "center",
   },
   avatar: {
-    color: "white",
-    backgroundColor: lightBlue[500],
+    margin: "0 auto",
+    display: "block",
+    width: "256px",
+    height: "256px",
+    borderRadius: "50%",
   },
 });
 

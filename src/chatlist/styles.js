@@ -1,30 +1,31 @@
-import { lightBlue } from '@material-ui/core/colors';
+import { lightBlue } from "@material-ui/core/colors";
 
-const styles = theme => ({
-    root: {
-      backgroundColor: theme.palette.background.paper,
-      height: 'calc(100% - 35px)',
-      position: 'absolute',
-      left: '0',
-      width: '300px',
-      boxShadow: '0px 0px 2px black'
-    },
-    listItem: {
-      cursor: 'pointer'
-    },
-    newChatBtn: {
-      borderRadius: '0px'
-    },
-    unreadMessage: {
-      color: 'red',
-      position: 'absolute',
-      top: '0',
-      right: '5px'
-    },
-    avatar: {
-        color: "white",
-        backgroundColor: lightBlue[500],
-    },
-  });
-  
-  export default styles;
+const styles = (theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.paper,
+    height: "calc(100% - 35px)",
+    position: "absolute",
+    left: "0",
+    width: "300px",
+    boxShadow: "0px 0px 2px black",
+  },
+  listItem: {
+    cursor: "pointer",
+  },
+  newChatBtn: {
+    borderRadius: "0px",
+  },
+  unreadMessage: {
+    color: "red",
+    position: "absolute",
+    top: "0",
+    right: "5px",
+  },
+  avatar: {
+    width: "50px",
+    height: "50px",
+    borderRadius: "50%",
+  },
+});
+
+export default styles;
