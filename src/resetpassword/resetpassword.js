@@ -8,34 +8,43 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { app } from "../firebase-config";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 import { ThemeProvider } from "@material-ui/styles";
 import { darkTheme } from "../ui/theme";
 import { Navigate } from "react-router";
 
 const auth = getAuth();
+const db = getFirestore();
 
-class LoginComponent extends React.Component {
+class ResetpasswordComponent extends React.Component {
   constructor() {
     super();
     this.state = {
       email: null,
-      password: null,
-      loginError: "",
+      resetError: "",
       redirect: null,
     };
   }
 
-  componentDidMount() {
-    const user = getAuth().currentUser;
-    if (user) {
-      this.navigateToDashboard();
-    }
-  }
+  formIsValid = () => this.state.password === this.state.passwordConfirmation;
 
   navigateToDashboard = () => {
     this.setState({ redirect: "/dashboard" });
+  };
+
+  submit = (e) => {
+    e.preventDefault();
+
+    //Firebase Auth reset password
+    sendPasswordResetEmail(auth, this.state.email)
+      .then(() => {
+        this.setState({ resetError: "" });
+        this.navigateToDashboard();
+      })
+      .catch((error) => {
+        this.setState({ resetError: error.message });
+      });
   };
 
   userTyping = (type, e) => {
@@ -43,29 +52,9 @@ class LoginComponent extends React.Component {
       case "email":
         this.setState({ email: e.target.value });
         break;
-      case "password":
-        this.setState({ password: e.target.value });
-        break;
       default:
         break;
     }
-  };
-
-  submitLogin = async (e) => {
-    e.preventDefault();
-
-    await signInWithEmailAndPassword(
-      auth,
-      this.state.email,
-      this.state.password
-    ).then(
-      () => {
-        this.navigateToDashboard();
-      },
-      (error) => {
-        this.setState({ loginError: error.message });
-      }
-    );
   };
 
   render() {
@@ -73,7 +62,7 @@ class LoginComponent extends React.Component {
       return <Navigate to={this.state.redirect} />;
     }
     const { classes } = this.props;
-    document.title = "TrueBlue | Login";
+    document.title = "TrueBlue | Passwort zurücksetzen";
     return (
       <ThemeProvider theme={darkTheme}>
         <main className={classes.main}>
@@ -81,31 +70,18 @@ class LoginComponent extends React.Component {
           <Paper className={classes.paper}>
             <img src="/logo.png" alt="TrueBlue" width="20%" />
             <Typography component="h1" variant="h5">
-              Logge dich ein!
+              Passwort zurücksetzen
             </Typography>
-            <form
-              className={classes.form}
-              onSubmit={(e) => this.submitLogin(e)}
-            >
+            <form className={classes.form} onSubmit={(e) => this.submit(e)}>
               <FormControl required fullWidth margin="normal">
-                <InputLabel htmlFor="signin-email-input">E-Mail</InputLabel>
+                <InputLabel htmlFor="signup-email-input">
+                  Deine E-Mail Adresse
+                </InputLabel>
                 <Input
                   autoComplete="email"
                   autoFocus
-                  id="signin-email-input"
+                  id="signup-email-input"
                   onChange={(e) => this.userTyping("email", e)}
-                  type="email"
-                />
-              </FormControl>
-              <FormControl required fullWidth margin="normal">
-                <InputLabel htmlFor="signin-password-input">
-                  Passwort
-                </InputLabel>
-                <Input
-                  autoComplete="password"
-                  onChange={(e) => this.userTyping("password", e)}
-                  id="signin-password-input"
-                  type="password"
                 />
               </FormControl>
               <Button
@@ -115,23 +91,23 @@ class LoginComponent extends React.Component {
                 color="primary"
                 className={classes.submit}
               >
-                Login
+                E-Mail senden
               </Button>
             </form>
-            {this.state.loginError ? (
+            {this.state.resetError ? (
               <Typography
                 className={classes.errorText}
                 component="h5"
                 variant="h6"
               >
-                {this.state.loginError}
+                {this.state.resetError}
               </Typography>
             ) : null}
-            <a className={classes.signupLink} href="/signup">
-              Noch kein Konto?
-            </a>
-            <a className={classes.signupLink} href="/reset-password">
-              Passwort vergessen?
+            <h4 className={classes.hasAccountHeader}>
+              Passwort doch nicht vergessen?
+            </h4>
+            <a className={classes.logInLink} href="/">
+              Logge dich ein!
             </a>
           </Paper>
         </main>
@@ -140,4 +116,4 @@ class LoginComponent extends React.Component {
   }
 }
 
-export default withStyles(styles)(LoginComponent);
+export default withStyles(styles)(ResetpasswordComponent);
